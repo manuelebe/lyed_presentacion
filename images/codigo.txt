@@ -1,0 +1,205 @@
+/// Validacion de tarjeta
+Funcion diccionarioUsuarios <- diccionario_usuarios(numeroTarjeta, contrasenia) 
+    Definir i Como Entero
+    Definir tarjPin Como Logico
+    dimensionar tarjeta[4]
+	dimensionar pin[4] 
+	
+    tarjPin <- Falso
+    
+    // Tarjetas guardadas
+    tarjeta[1]<- 451730
+	tarjeta[2]<- 513900
+	tarjeta[3]<- 523900
+	tarjeta[4]<- 543900
+    
+    // Claves guardadas
+    pin[1] <- 0021
+    pin[2] <- 4039
+    pin[3] <- 4952
+    pin[4] <- 9846
+
+    Para i <- 1 Hasta 4 Con Paso 1 Hacer
+        Si numeroTarjeta = tarjeta[i] Y contrasenia = pin[i] Entonces
+            tarjPin <- Verdadero
+        FinSi
+    FinPara
+    
+    Si tarjPin = Verdadero Entonces
+        diccionarioUsuarios <- Verdadero
+    SiNo
+        diccionarioUsuarios <- Falso
+    FinSi
+FinFuncion
+
+
+Funcion Validar_Tarjeta <- ValidacionT(numeroTarjeta, contrasenia)
+    
+    Si Longitud(numeroTarjeta) = 6 Entonces
+        Si Subcadena(numeroTarjeta,0,1) = "4" O Subcadena(numeroTarjeta,0,2) = "51" O Subcadena(numeroTarjeta,0,2) = "52" O Subcadena(numeroTarjeta,0,2) = "53" O Subcadena(numeroTarjeta,0,2) = "54" O Subcadena(numeroTarjeta,0,2) = "55" O Subcadena(numeroTarjeta,0,2) = "34" O Subcadena(numeroTarjeta,0,2) = "37" Entonces
+            Validar_Tarjeta <- diccionario_usuarios(ConvertirANumero(numeroTarjeta), contrasenia)
+        SiNo
+            Validar_Tarjeta <- Falso
+        FinSi
+    SiNo
+        Validar_Tarjeta <- Falso
+    FinSi
+FinFuncion
+
+
+/// Operaciones del cajero
+Funcion saldo <- retirarDinero(saldo)
+    Definir montoExtraccion Como Real
+    Definir impComprobante Como Caracter
+	Definir terminar Como Logico
+ 
+	Repetir
+		Escribir "Ingrese el monto que desea retirar: "
+		Leer montoExtraccion
+		Si montoExtraccion >= 5000 Y montoExtraccion <= 1000000 Entonces
+			Si montoExtraccion <= saldo Entonces
+				Escribir "La operación se realizó con éxito"
+				saldo <- saldo - montoExtraccion
+				terminar = Verdadero
+			SiNo
+				Escribir "Saldo insuficiente."
+			FinSi
+		SiNo
+			Escribir "Monto inválido (el mínimo para retirar es $5000 y el máximo $1.000.000)"
+		FinSi
+	Hasta Que terminar = Verdadero 
+    
+    Escribir "¿Desea imprimir comprobante? (S/N)"
+    Leer impComprobante
+    Si Mayusculas(impComprobante) = "S" Entonces
+        Escribir "------- Detalle de cuenta -------"
+        Escribir "El monto retirado: $", montoExtraccion
+        Escribir "Su saldo actual es: $", saldo
+        Escribir "---------------------------------"
+    FinSi
+    Esperar Tecla
+    Limpiar Pantalla
+FinFuncion
+
+
+Algoritmo Sistema_De_Cajero
+	
+	//Declaracion de variables
+    Definir numeroTarjeta Como Caracter
+	Definir Opciones, alias, opcion_alias Como Caracter
+	Definir Salir Como Caracter
+	
+    Definir VALOR_LOGICO Como Logico
+	Definir ContrasenaCorrecta Como Logico
+	
+    Definir saldo Como Real
+	Definir monto_alias Como Real
+   
+	Definir contrasenia,PIN,Clave_Nueva,Clave_Nueva2 Como Entero
+    
+	//Inicializacion
+    saldo <- 5000000
+    ContrasenaCorrecta <- Falso
+    Salir <- "No"
+    
+	
+	//Lector de tarjeta
+    Escribir "Bienvenido"
+    Escribir "Ingrese su número de identificación de tarjeta (6 dígitos):"
+    Leer numeroTarjeta
+    
+	Escribir "Ingrese PIN:"
+	Leer contrasenia
+	
+	//Valida tarjeta con pin
+    VALOR_LOGICO <- ValidacionT(numeroTarjeta,contrasenia)
+    
+    Si VALOR_LOGICO Entonces
+        Escribir "Tarjeta válida"
+        Repetir
+            Escribir "--------------------------------------------"
+            Escribir "Ingresaste con Éxito"
+            Escribir "Seleccione la operación que desea realizar"
+            Escribir "A: Retirar Dinero"
+            Escribir "B: Gestionar Claves"
+            Escribir "C: Transferir Dinero"
+            Escribir "D: Consultar Dinero y Disponibilidad"
+            Escribir "E: Consultar Últimos Movimientos"
+            Escribir "F: Salir"
+            Escribir "--------------------------------------------"
+            Leer Opciones
+            
+            Segun Mayusculas(Opciones) Hacer
+                "A":
+                    saldo <- retirarDinero(saldo)
+                    
+                "B":
+                    Repetir
+                        Escribir "Cambio de PIN"
+                        Escribir "Ingrese su PIN anterior"
+                        Leer PIN
+                        // Simulación: si acierta el PIN se permite el cambio
+                        Si contrasenia = PIN Entonces
+                            Escribir "Ingrese su nuevo PIN"
+                            Leer Clave_Nueva
+                            Escribir "Reingrese su nuevo PIN"
+                            Leer Clave_Nueva2
+                            Si Clave_Nueva = Clave_Nueva2 Entonces
+                                Escribir "Cambio de PIN realizado con éxito"
+								contrasenia = Clave_Nueva
+                                ContrasenaCorrecta <- Verdadero
+                            SiNo
+                                Escribir "El PIN no coincide. Vuelve a intentarlo"
+                            FinSi
+                        SiNo
+                            Escribir "El PIN anterior no es correcto"
+                        FinSi
+                        Esperar 2 Segundos
+                        Limpiar Pantalla
+                    Hasta Que ContrasenaCorrecta = Verdadero
+                    
+                "C":
+                    Escribir "Ingrese un Alias"
+                    Leer alias
+                    Escribir "Desea confirmar el Alias: ", alias
+                    Escribir "SI / NO"
+                    Leer opcion_alias
+                    Si Mayusculas(opcion_alias) = "SI" Entonces
+                        Escribir "Ingrese el monto que desea transferir, su disponibilidad es de: ", saldo
+                        Leer monto_alias
+                        Si monto_alias <= saldo Entonces
+                            saldo <- saldo - monto_alias
+                            Escribir "Transferencia realizada de $", monto_alias, " al alias: ", alias
+                            Escribir "Su saldo actual: ", saldo
+                        SiNo
+                            Escribir "Saldo insuficiente para realizar la transferencia"
+                        FinSi
+                    SiNo
+                        Escribir "Transferencia cancelada"
+                    FinSi
+                    
+                "D":
+                    Escribir "Su saldo disponible es de: ", saldo
+                    Escribir "Su disponibilidad máxima es de: $1.000.000"
+                    
+                "E":
+                    Escribir "Sus últimos movimientos son:"
+                    Escribir "1) Depósito inicial: $5.000.000"
+                    Escribir "2) Ejemplo: Retiro/Transferencia (esto se puede mejorar con un vector de movimientos)"
+                    
+                "F":
+                  
+                De Otro Modo:
+                    Escribir "Opción inválida. Intente nuevamente."
+            FinSegun
+			Escribir "Deseas salir? (Si/No)"
+			Leer Salir
+        Hasta Que Salir = "Si"
+		Escribir "Saliendo del sistema"
+		Esperar 2 Segundos
+		Escribir "Recuerde retirar su tarjeta"
+		Limpiar Pantalla
+    SiNo
+        Escribir "Tarjeta incorrecta"
+    FinSi
+FinAlgoritmo
